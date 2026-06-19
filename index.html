@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método NF - Negócio Forte</title>
+    <!-- Import Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Premium, Sophisticated Reset */
+        :root {
+            --primary: #0a0f1c; /* Very dark blue/black */
+            --primary-light: #162032;
+            --accent: #d4af37; /* Sophisticated gold */
+            --accent-hover: #b5952f;
+            --bg-color: #f4f6f9; /* Off-white for contrast */
+            --card-bg: #ffffff;
+            --text-main: #2b3648;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            --radius: 12px;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Utility */
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .text-center { text-align: center; }
+
+        h1, h2, h3, h4 {
+            color: var(--primary);
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        /* --- QUIZ STYLES --- */
+        #quiz-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 4rem 3rem;
+            text-align: center;
+            max-width: 650px;
+            margin: 6rem auto;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .question-block {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-block.active {
+            display: block;
+        }
+
+        .progress-container {
+            margin-bottom: 3rem;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f3d46a);
+            width: 33%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quiz-title {
+            font-size: 1.75rem;
+            margin-bottom: 2.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-option {
+            display: block;
+            width: 100%;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+            padding: 1.25rem;
+            font-size: 1.15rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-option:hover {
+            border-color: var(--accent);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        #loading-screen {
+            display: none;
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(212, 175, 55, 0.2);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- SALES PAGE STYLES --- */
+        #sales-section {
+            display: none;
+            background-color: var(--bg-color);
+        }
+
+        /* Hero Section Premium */
+        .hero-premium {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 6rem 1rem 8rem 1rem;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            margin-bottom: -4rem; /* Pull up next section */
+        }
+
+        .hero-premium h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: white;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+
+        .hero-premium h1 span {
+            color: var(--accent);
+        }
+
+        .hero-premium .subtitle {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: #94a3b8;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        /* Pulse Animation for Buttons */
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+
+        /* Refeito o Botão CTA */
+        .btn-buy {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            font-size: 1.35rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            padding: 1.2rem 3rem;
+            border-radius: 8px; /* Mais moderno e menos 'pílula' */
+            border: 1px solid #15803d;
+            border-bottom: 4px solid #14532d;
+            box-shadow: 0 10px 20px rgba(22, 163, 74, 0.3);
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 450px;
+            animation: pulse-btn 2.5s infinite;
+        }
+
+        .btn-buy:hover {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            margin-top: 2px;
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+        }
+
+        .btn-buy:active {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+            margin-top: 4px;
+        }
+
+        .btn-buy svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Problem & Solution Section */
+        .intro-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (min-width: 800px) {
+            .intro-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .intro-card {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border-top: 5px solid;
+        }
+
+        .intro-card.problem {
+            border-top-color: #ef4444;
+        }
+
+        .intro-card.solution {
+            border-top-color: var(--accent);
+        }
+
+        .intro-card h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .intro-card p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Chapters Structure */
+        .structure-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .structure-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .structure-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        @media (min-width: 768px) {
+            .chapters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .chapter-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .chapter-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: rgba(15, 23, 42, 0.04);
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            line-height: 1;
+            transition: var(--transition);
+        }
+
+        .chapter-card:hover .chapter-number {
+            color: rgba(212, 175, 55, 0.1);
+            transform: scale(1.1);
+        }
+
+        .chapter-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chapter-desc {
+            color: var(--text-light);
+            position: relative;
+            z-index: 1;
+            flex-grow: 1;
+        }
+
+        /* Proof Section */
+        .proof-section {
+            background: var(--primary);
+            color: white;
+            padding: 6rem 0;
+            margin-top: 2rem;
+            border-radius: 40px 40px 0 0;
+        }
+
+        .proof-section h2 {
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .proof-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .proof-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .proof-img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+        }
+
+        .proof-img:hover {
+            transform: scale(1.03);
+        }
+
+        /* CTA Section */
+        .cta-wrapper {
+            background: var(--bg-color);
+            padding: 5rem 1rem;
+            text-align: center;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid var(--accent);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: -8rem auto 0;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .cta-card h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .price-tag {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .price-tag span {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+
+        .guarantee {
+            margin-top: 1.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            background: var(--bg-color);
+        }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1337636618250985');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1337636618250985&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+</head>
+<body>
+
+    <!-- QUIZ INTERATIVO -->
+    <div id="quiz-section">
+        <div class="progress-container">
+            <div class="progress-text" id="progress-text">Pergunta 1 de 3</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+        </div>
+
+        <div id="q1" class="question-block active">
+            <h2 class="quiz-title">Tem dificuldade em ver o lucro do seu negócio no final do mês?</h2>
+            <button class="btn-option" onclick="nextQuestion(1)">Sim, bastante</button>
+            <button class="btn-option" onclick="nextQuestion(1)">Às vezes</button>
+            <button class="btn-option" onclick="nextQuestion(1)">Não</button>
+        </div>
+
+        <div id="q2" class="question-block">
+            <h2 class="quiz-title">Sente que os seus clientes compram uma vez e raramente voltam?</h2>
+            <button class="btn-option" onclick="nextQuestion(2)">Sim, acontece muito</button>
+            <button class="btn-option" onclick="nextQuestion(2)">Poucas vezes</button>
+            <button class="btn-option" onclick="nextQuestion(2)">Não, eles voltam</button>
+        </div>
+
+        <div id="q3" class="question-block">
+            <h2 class="quiz-title">Gostaria de ter um método simples para organizar e aumentar as suas vendas sem complicações?</h2>
+            <button class="btn-option" onclick="finishQuiz()">Sim, preciso disso agora!</button>
+            <button class="btn-option" onclick="finishQuiz()">Sim, tenho interesse</button>
+        </div>
+
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <h3 style="font-size: 1.5rem; color: var(--primary);">A analisar o seu perfil...</h3>
+            <p style="color: var(--text-light); margin-top: 10px;">A preparar o material ideal para o seu negócio.</p>
+        </div>
+    </div>
+
+    <!-- PÁGINA DE VENDAS -->
+    <div id="sales-section">
+        
+        <!-- Premium Hero -->
+        <header class="hero-premium">
+            <div class="container">
+                <h1>Método NF <span>(Negócio Forte)</span></h1>
+                <p class="subtitle">Organiza o teu negócio. Faz crescer. O guia definitivo para ver o dinheiro sobrar no final do mês.</p>
+                
+                <!-- CTA Button no Topo (Refeito) -->
+                <div style="margin-top: 3rem; display: flex; justify-content: center;">
+                    <a href="https://checkout.escalepay.com/7088413" class="btn-buy" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        Quero Comprar Agora
+                    </a>
+                </div>
+
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Split Intro Section -->
+            <section class="intro-section">
+                <div class="intro-card problem">
+                    <div style="color: #ef4444; margin-bottom: 1rem;">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h2>Por que criei o Método NF?</h2>
+                    <p>Muitos vendedores, microempreendedores e revendedores trabalham arduamente todos os dias, mas não conseguem ver a cor do dinheiro no final do mês.</p>
+                    <p>Criei este método para acabar de vez com a desorganização que destrói os pequenos negócios.</p>
+                </div>
+                
+                <div class="intro-card solution">
+                    <div style="color: var(--accent); margin-bottom: 1rem;">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h2>O que vais aprender:</h2>
+                    <p>Vais deixar de vender sem ver lucro, organizar as tuas finanças em poucos minutos por dia.</p>
+                    <p>Aprenderás a implementar estratégias simples e práticas que fazem os clientes voltarem e comprarem muito mais de ti.</p>
+                </div>
+            </section>
+
+            <!-- Modern Chapters Grid -->
+            <div class="structure-header">
+                <h2>A Estrutura do Ebook</h2>
+                <p style="color: var(--text-light); max-width: 600px; margin: 0 auto; font-size: 1.1rem;">Tudo o que precisas de saber, organizado num método passo a passo à prova de falhas.</p>
+            </div>
+
+            <div class="chapters-grid">
+                
+                <div class="chapter-card">
+                    <div class="chapter-number">01</div>
+                    <h3 class="chapter-title">O Problema do Vendedor Desorganizado</h3>
+                    <p class="chapter-desc">Sintomas comuns: vender sem lucro, sem controlo de stock, sem clientes fiéis. Por que "vender mais" sozinho não resolve o teu problema real.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">02</div>
+                    <h3 class="chapter-title">Os 4 Pilares do Método NF</h3>
+                    <p class="chapter-desc">O alicerce do teu sucesso: <strong>Organização</strong> (registo), <strong>Precificação</strong> (preço certo), <strong>Clientes</strong> (fidelização) e <strong>Crescimento</strong> (reinvestimento).</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">03</div>
+                    <h3 class="chapter-title">Pilar 1: Organização Financeira</h3>
+                    <p class="chapter-desc">Como separar o dinheiro pessoal do negócio de forma prática. Inclui caderno/planilha simples de controlo diário com exemplos reais.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">04</div>
+                    <h3 class="chapter-title">Pilar 2: Precificação Inteligente</h3>
+                    <p class="chapter-desc">A fórmula exata de preço de venda (custo + margem + despesas) e como evitar erros fatais que corroem a tua margem de lucro.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">05</div>
+                    <h3 class="chapter-title">Pilar 3: Clientes que Voltam</h3>
+                    <p class="chapter-desc">Atendimento que fideliza de verdade. Como usar WhatsApp e Status para gerar vendas diárias. Estratégias de pós-venda poderosas.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">06</div>
+                    <h3 class="chapter-title">Pilar 4: Crescimento com Inteligência</h3>
+                    <p class="chapter-desc">Quando e como reinvestir de forma segura para fazer o negócio expandir sem risco de estagnar ou falir.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">07</div>
+                    <h3 class="chapter-title">Plano de Ação NF em 30 Dias</h3>
+                    <p class="chapter-desc">Um roteiro prático e passo a passo dividido em 4 semanas estruturadas: Organizar, Precificar, Vender e Medir.</p>
+                </div>
+
+                <div class="chapter-card">
+                    <div class="chapter-number">08</div>
+                    <h3 class="chapter-title">Ferramentas e Modelos Práticos</h3>
+                    <p class="chapter-desc">Acesso a modelos prontos para usar: ficha de registo diário, calculadora de preço de venda e checklist de fidelização.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Social Proof with Dark Background -->
+        <section class="proof-section">
+            <div class="container">
+                <h2>Quem já aplicou o Método aprova:</h2>
+                <div class="proof-grid">
+                    <img src="prova1.png" alt="Depoimento de Aluno 1" class="proof-img" onerror="this.style.display='none'">
+                    <img src="prova2.png" alt="Depoimento de Aluno 2" class="proof-img" onerror="this.style.display='none'">
+                    <img src="prova3.png" alt="Depoimento de Aluno 3" class="proof-img" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </section>
+
+        <!-- High Conversion CTA Card -->
+        <section class="cta-wrapper">
+            <div class="cta-card">
+                <h2>Comece a Organizar o Seu Negócio Hoje!</h2>
+                <p style="color: var(--text-light); font-size: 1.1rem; max-width: 500px; margin: 0 auto;">O passo a passo definitivo para assumir o controlo das suas vendas e ver o dinheiro sobrar no final do mês.</p>
+                
+                <div class="price-tag">
+                    <span>997 MT</span>
+                    297 MT
+                </div>
+                
+                <div style="display: flex; justify-content: center;">
+                    <a href="https://checkout.escalepay.com/7088413" class="btn-buy" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        Quero Comprar Agora
+                    </a>
+                </div>
+                
+                <div class="guarantee">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    Acesso imediato • Pagamento 100% seguro
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p><strong>Sobre o Método NF</strong></p>
+            <p>Contacto: suporte@metodonf.com | Redes sociais: @metodonf</p>
+            <p style="margin-top: 1rem; opacity: 0.6;">&copy; 2026 Método NF. Todos os direitos reservados.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function nextQuestion(current) {
+            document.getElementById('q' + current).classList.remove('active');
+            
+            // Update progress
+            let progress = 33;
+            if(current === 1) progress = 66;
+            if(current === 2) progress = 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            if(current < 3) {
+                document.getElementById('progress-text').innerText = 'Pergunta ' + (current + 1) + ' de 3';
+            }
+
+            // Show next
+            if (document.getElementById('q' + (current + 1))) {
+                document.getElementById('q' + (current + 1)).classList.add('active');
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('q3').classList.remove('active');
+            document.getElementById('progress').parentElement.parentElement.style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'block';
+            
+            setTimeout(function() {
+                document.getElementById('quiz-section').style.display = 'none';
+                
+                const salesSection = document.getElementById('sales-section');
+                salesSection.style.display = 'block';
+                salesSection.style.animation = 'slideUp 0.6s ease-out';
+                
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
