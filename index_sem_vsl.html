@@ -42,11 +42,9 @@
                 radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
         }
 
-        /* Utilidades Glassmorphism */
+        /* Utilidades Otimizadas (Sem Glassmorphism Pesado) */
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.95);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius);
         }
@@ -60,26 +58,9 @@
             z-index: 10;
         }
 
-        /* Efeitos de Fundo */
+        /* Efeitos de Fundo Otimizados (Desativados para Performance) */
         .glow-orb {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: var(--brand-blue);
-            border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
-            animation: pulse-orb 8s ease-in-out infinite alternate;
-        }
-
-        .glow-orb.top { top: -200px; left: 50%; transform: translateX(-50%); }
-        .glow-orb.bottom { bottom: 0; right: -200px; }
-
-        @keyframes pulse-orb {
-            0% { transform: scale(1) translateX(-50%); opacity: 0.1; }
-            100% { transform: scale(1.2) translateX(-40%); opacity: 0.25; }
+            display: none;
         }
 
         /* --- QUIZ INICIAL (PORTA DE ENTRADA) --- */
@@ -598,7 +579,7 @@
                 salesSection.style.animation = 'slideUpFade 0.8s ease-out';
                 
                 window.scrollTo({top: 0, behavior: 'smooth'});
-            }, 3000);
+            }, 800);
         }
     </script>
 </body>
